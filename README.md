@@ -2,7 +2,7 @@
 **English** | [中文](README_zh.md)
 # StaRT RTOS
 
-A small educational real‑time kernel for Cortex‑M targets. Focus: clarity of core mechanisms (priority bitmap scheduler, tick timer, basic thread lifecycle, simple IPC placeholders).
+StaRT is a lightweight real-time kernel designed for Cortex-M. The objective is to demonstrate priority scheduling, time slices, sleep timers, and the most basic IPC framework using as little code and resources as possible.
 
 ## 1. Features (Current)
 - Preemptive fixed‑priority scheduler (0 = highest) with bitmap fast lookup
