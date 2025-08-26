@@ -117,27 +117,19 @@ More related to transplantation (see extended guide [readme/StaRT_TRANS.md](read
 - No dynamic allocation in core (user supplies thread stacks statically)
 - Minimal inline assembly isolation
 
-## 9. Limitations / Known Gaps
-- IPC (mutex, message queue) not fully implemented
-- No memory manager / heap
-- No priority inheritance yet
-- No stack overflow detection
-- Timer list O(n); no skiplist levels >1
-- Logging not thread-safe (acceptable for demo)
-
-## 10. License
+## 9. License
 ```
 Copyright (c) 2025 StaRT
 SPDX-License-Identifier: MIT
 ```
 
-## 11. Contributing
+## 10. Contributing
 1. Fork / branch
 2. Keep modules small & isolated
 3. Add brief Doxygen comments
 4. Submit PR with test description
 
-## 12. Minimal Troubleshooting
+## 11. Minimal Troubleshooting
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
 | No context switch | SysTick missing or `__s_ffs` wrong | Check handler + bitmap |

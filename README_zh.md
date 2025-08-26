@@ -91,15 +91,7 @@ void s_putc(char c) { /* UART发送 */ }
 
 移植相关详见 [readme/StaRT_TRANS.md](readme/StaRT_TRANS.md)。
 
-## 7. 已知限制
-- 互斥量、消息队列未完成
-- 无优先级继承
-- 无堆/内存管理
-- 无栈溢出检测
-- 定时器插入 O(n)
-- `s_printf` 非线程安全
-
-## 8. 调试建议
+## 7. 调试建议
 | 现象 | 排查 |
 |------|------|
 | 不切换 | 检查 SysTick 与位图 |
@@ -107,13 +99,13 @@ void s_putc(char c) { /* UART发送 */ }
 | HardFault | 栈未 8 字节对齐或返回地址异常 |
 | 日志交叉 | 正常竞争，可忽略或加锁 |
 
-## 9. 许可证
+## 8. 许可证
 ```
 SPDX-License-Identifier: MIT
 Copyright (c) 2025
 ```
 
-## 10. 贡献
+## 9. 贡献
 欢迎提交 Issue / PR：  
 - 保持单一职责
 - 补充简要 Doxygen 注释
