@@ -5,16 +5,14 @@
 StaRT is a lightweight real-time kernel designed for Cortex-M. The objective is to demonstrate priority scheduling, time slices, sleep timers, and the most basic IPC framework using as little code and resources as possible.
 
 ## 1. Features (Current)
-- Preemptive fixed‑priority scheduler (0 = highest) with bitmap fast lookup
-- Round‑robin within same priority via time slice
-- Thread lifecycle: init / startup / sleep / yield / delete / restart / exit
-- Per‑thread software timer (used for sleep & timeouts)
-- Simple ordered timer list (O( n ) insert for now)
-- Lightweight formatted output `s_printf` (supports %d %s %c)
-- Optional IPC scaffolding (semaphore / mutex / message queue stubs — semaphore partly implemented)
-- Clean separation of arch port (context switch, stack frame, irq mask)
-
-Planned: full IPC implementations, priority inheritance, message queue, tickless, stack watermark, diagnostics.
+- Fixed priorities + Bitmap fast lookup (0 is the highest)
+- Time slice rotation (round-robin) with the same priority
+- Thread lifecycle: initialization / startup / sleep / yield / deletion / restart / exit
+- Software timers per thread (for sleep and timeouts)
+- Ordered timer linked list
+- Lightweight formatted output `s_printf`
+- Preliminary semaphores (mutexes, placeholder for message queues)
+- Platform-specific code is independent (assembly context switching + stack initialization) - Extremely low resource consumption: Under the -O3 optimization, when comparing with the map file, V1.02 only adds approximately 1.46 KB of FLASH and 0.5 KB of RAM compared to the basic system.
 
 ## 2. Directory Layout
 ```
