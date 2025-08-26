@@ -1,5 +1,5 @@
 ![StaRT](readme/StaRTLogo.png)
-**English** | [中文](readme/StaRT_README_zh.md)
+**English** | [中文](README_zh.md)
 # StaRT RTOS
 
 A small educational real‑time kernel for Cortex‑M targets. Focus: clarity of core mechanisms (priority bitmap scheduler, tick timer, basic thread lifecycle, simple IPC placeholders).

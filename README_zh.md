@@ -1,5 +1,5 @@
-![StaRT](StaRTLogo.png)
-[English](StaRT_README.md) | **中文** 
+![StaRT](readme/StaRTLogo.png)
+[English](README.md) | **中文** 
 # StaRT RTOS 简介
 
 StaRT 是一个轻量实时内核，面向 Cortex‑M。目标：用尽量少的代码和资源展示优先级调度、时间片、睡眠定时器与最基本的 IPC 框架。
@@ -24,7 +24,7 @@ bsp/       板级支持包
 ```
 
 ## 3. 配置
-编辑 `StaRT_Config.h`（参考 [StaRT_CONFIG.md](StaRT_CONFIG.md)）：
+编辑 `StaRT_Config.h`（参考 [readme/StaRT_CONFIG.md](readme/StaRT_CONFIG.md)）：
 - `START_THREAD_PRIORITY_MAX`
 - `START_TICK`
 - `START_IDLE_STACK_SIZE`
@@ -89,7 +89,7 @@ void s_putc(char c) { /* UART发送 */ }
 - SysTick 调用 `s_tick_increase`
 - 可选 `__s_ffs` 加速位图扫描（否则使用内建/回退）
 
-移植相关详见 [StaRT_TRANS.md](StaRT_TRANS.md)。
+移植相关详见 [readme/StaRT_TRANS.md](readme/StaRT_TRANS.md)。
 
 ## 7. 已知限制
 - 互斥量、消息队列未完成
