@@ -81,7 +81,7 @@ typedef struct thread
     s_int32_t   status;           /**< Thread lifecycle status flags */
     s_timer     timer;            /**< Per-thread sleep/timeout timer */
 } s_thread, *s_pthread;
-
+#if START_USING_IPC
 /**
  * @brief Common IPC parent header embedded in IPC objects.
  */
@@ -145,6 +145,8 @@ struct s_mq_message
 };
 #endif
 
+#endif
+
 #define s_inline static inline __attribute__((always_inline))
 
 /* Thread status flags */
@@ -176,7 +178,6 @@ struct s_mq_message
 #define START_IPC_FLAG_PRIO  0x01 /**< Priority ordering (lower numeric = higher priority) */
 #define START_WAITING_FOREVER ((s_int32_t)(-1)) /**< Block forever */
 #define START_WAITING_NO      ((s_int32_t)(0))  /**< Non-blocking */
-#endif
 
 #if START_USING_SEMAPHORE
 #define SEM_VALUE_MAX 0xFFFF
@@ -185,6 +186,20 @@ struct s_mq_message
 #if START_USING_MUTEX
 #define MUTEX_HOLD_MAX 0xFF
 #endif
+
+#if START_USING_MESSAGEQUEUE
+/**
+ * @brief Compute memory pool size for a message queue.
+ * @param msg_size Raw single message size.
+ * @param msg_count Message count.
+ */
+#define START_MSGQ_POOL_SIZE(msg_size, msg_count) \
+    ( (size_t)(msg_count) * ( START_ALIGN_UP((size_t)(msg_size), START_ALIGN_SIZE) + sizeof(struct s_mq_message) ) )
+#endif
+
+#endif
+
+
 
 #ifndef __weak
 #define __weak  __attribute__((weak))
@@ -208,15 +223,6 @@ struct s_mq_message
 #define START_ALIGN_SIZE 4
 #define START_ALIGN_UP(sz, a) ( ((sz) + ((a)-1)) & ~((a)-1) )
 
-#if START_USING_MESSAGEQUEUE
-/**
- * @brief Compute memory pool size for a message queue.
- * @param msg_size Raw single message size.
- * @param msg_count Message count.
- */
-#define START_MSGQ_POOL_SIZE(msg_size, msg_count) \
-    ( (size_t)(msg_count) * ( START_ALIGN_UP((size_t)(msg_size), START_ALIGN_SIZE) + sizeof(struct s_mq_message) ) )
-#endif
 
 /**
  * @brief Obtain container struct pointer from member pointer.

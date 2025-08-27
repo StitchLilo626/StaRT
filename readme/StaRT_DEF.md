@@ -133,7 +133,7 @@ typedef struct semaphore {
 
 ---
 
-## 7. 互斥量 (s_mutex)（结构定义，尚未实现逻辑）
+## 7. 互斥量 (s_mutex)
 ```
 typedef struct mutex {
     struct ipc_parent parent;
@@ -152,7 +152,7 @@ typedef struct mutex {
 
 ---
 
-## 8. 消息队列 (s_msgqueue)（尚未实现逻辑）
+## 8. 消息队列 (s_msgqueue)
 ```
 typedef struct {
     struct ipc_parent parent;
@@ -300,6 +300,7 @@ bitmap: b00011011 (LSB=prio0)
 ---
 ## 16. 变更记录（文档）
 
+- 2025-08-27 增补：互斥量/消息队列等api简单介绍。
 - 2025-08-26 增补：互斥量/消息队列字段说明、上下文切换流程、位图调度示意、未来扩展占位。
 - 2025-08-24 初版结构描述。
 

@@ -233,14 +233,11 @@ struct ipc_parent
     s_list    suspend_thread;     /**< Waiting thread list head */
 };
 ``` 
-### s_status s_ipc_suspend(s_list *list, s_pthread thread, s_uint8_t flag)
-线程挂起到 IPC 等待链表。  
-flag：
-- FIFO：链表尾
-- PRIO：按优先级插入（数值小 → 高）
+| 函数 | 语义 |
+|------|------|
+| s_ipc_suspend | 线程挂起到 IPC 等待链表。 |
+| s_ipc_list_resume_all | 唤醒给定挂起链表全部线程（标 READY 并入就绪队列）。不立即切换；IPC调用者函数随后立即调用`s_sched_switch()`  |
 
-### s_status s_ipc_list_resume_all(s_list *list)
-唤醒给定挂起链表全部线程（标 READY 并入就绪队列）。不立即切换；调用者可随后 `s_sched_switch()`。
 
 ---
 
