@@ -9,7 +9,6 @@
  *   (c) 2025 StaRT Project
  * @note
  *   History:
- *     - 2025-08-26 1.0.1 GitHub Copilot: Added Doxygen comments and normalized English API docs.
  *     - 2025-08-26 1.0.2 StitchLilo626: Translate in-function Chinese comments to English, author updated.
  */
 

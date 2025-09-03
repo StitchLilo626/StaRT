@@ -7,7 +7,7 @@
  *   StitchLilo626
  * @note
  *   History:
- *     - 2025-08-26 1.0.2 Translate in-code comments to English.
+ *     - 2025-08-26 1.0.2 StitchLilo626: Translate in-code comments to English.
  */
 
 #include "sdef.h"

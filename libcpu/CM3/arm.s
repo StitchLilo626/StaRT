@@ -5,7 +5,7 @@
 ; Date: 2025-08-26
 ; Author: StitchLilo626
 ; History:
-;   2025-08-26 1.0.2 Translate Chinese comments to English (kept structure).
+;   2025-08-26 1.0.2 StitchLilo626: Translate Chinese comments to English (kept structure).
 ;------------------------------------------------------------------------------
 
     IMPORT  s_prev_thread_sp_p
@@ -57,7 +57,7 @@ s_first_switch_task    PROC
     LDR     r0, =NVIC_SYSPRI2
     LDR     r1, =NVIC_PENDSV_PRI
     LDR.W   r2, [r0,#0x00]
-    ORR     r1, r1, r2
+    ORR     r1, r1, r2 
     STR     r1, [r0]             ; set PendSV lowest priority
 
     LDR     r0, =NVIC_INT_CTRL
