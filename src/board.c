@@ -8,6 +8,7 @@
  * @note
  *   History:
  *     - 2025-08-26 1.0.2 StitchLilo626: Translate comments to English.
+ *     - 2026-05-13 1.0.3 StitchLilo626: Add idle thread hook list & SysTick us delay reference.
  */
 
 #include "start.h"
@@ -37,6 +38,59 @@ static s_thread    idle_thread;
 static s_uint8_t   idle_stack[START_IDLE_STACK_SIZE];
 static volatile int idle_counter = 0;
 
+#if START_IDLE_HOOK_LIST_SIZE > 0
+/** Array of pointers to user-defined idle hook functions. */
+static void (*idle_hook_list[START_IDLE_HOOK_LIST_SIZE])(void);
+
+/**
+ * @brief Register a hook function to be called in the idle thread.
+ * @param hook Pointer to the hook function.
+ * @return S_OK if registered successfully, S_ERR if the hook list is full.
+ */
+s_status s_idle_sethook(void (*hook)(void))
+{
+    s_uint32_t i;
+    register s_uint32_t level = s_irq_disable();
+
+    for (i = 0; i < START_IDLE_HOOK_LIST_SIZE; i++)
+    {
+        if (idle_hook_list[i] == NULL)
+        {
+            idle_hook_list[i] = hook;
+            s_irq_enable(level);
+            return S_OK;
+        }
+    }
+
+    s_irq_enable(level);
+    return S_ERR;
+}
+
+/**
+ * @brief Remove a previously registered idle hook function.
+ * @param hook Pointer to the hook function.
+ * @return S_OK if removed successfully, S_ERR if not found.
+ */
+s_status s_idle_delhook(void (*hook)(void))
+{
+    s_uint32_t i;
+    register s_uint32_t level = s_irq_disable();
+
+    for (i = 0; i < START_IDLE_HOOK_LIST_SIZE; i++)
+    {
+        if (idle_hook_list[i] == hook)
+        {
+            idle_hook_list[i] = NULL;
+            s_irq_enable(level);
+            return S_OK;
+        }
+    }
+
+    s_irq_enable(level);
+    return S_ERR;
+}
+#endif /* START_IDLE_HOOK_LIST_SIZE > 0 */
+
 /**
  * @brief Idle thread entry: performs background cleanup & optional power saving.
  */
@@ -47,8 +101,20 @@ static void idle_thread_entry(void)
         /* Reclaim defunct threads. */
         s_cleanup_defunct_threads();
 
-        /* Optionally insert low-power instruction (WFI). */
+#if START_IDLE_HOOK_LIST_SIZE > 0
+        s_uint32_t i;
+        /* Execute all registered idle hooks */
+        for (i = 0; i < START_IDLE_HOOK_LIST_SIZE; i++)
+        {
+            if (idle_hook_list[i] != NULL)
+            {
+                idle_hook_list[i]();
+            }
+        }
+#else
+        /* Optionally insert low-power instruction if no hooks are used. */
         /* __asm volatile ("wfi"); */
+#endif
     }
 }
 

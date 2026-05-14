@@ -80,6 +80,31 @@ void s_putc(char c)
     // 通过串口发送字符
     HAL_UART_Transmit(&huart1, (uint8_t *)&c, 1, HAL_MAX_DELAY);
 }
+#if START_USING_UDELAY
+/* DWT (Data Watchpoint and Trace) 寄存器地址 */
+#define DWT_CR      *(volatile uint32_t *)0xE0001000
+#define DWT_CYCCNT  *(volatile uint32_t *)0xE0001004
+#define DEM_CR      *(volatile uint32_t *)0xE000EDFC
+#define DEM_CR_TRCENA       (1 << 24)
+#define DWT_CR_CYCCNTENA    (1 << 0)
+
+void DWT_Init(void)
+{
+    /* 使能 DWT 外设 */
+    DEM_CR |= DEM_CR_TRCENA;
+    /* DWT CYCCNT 寄存器清零 */
+    DWT_CYCCNT = 0;
+    /* 使能 Cortex-M DWT CYCCNT 寄存器 */
+    DWT_CR |= DWT_CR_CYCCNTENA;
+}
+
+void DWT_Delay_us(uint32_t us)
+{
+    uint32_t start = DWT_CYCCNT;
+    uint32_t ticks = us * (SystemCoreClock / 1000000);
+    while ((DWT_CYCCNT - start) < ticks);
+}
+#endif /* START_USING_UDELAY */
 /* USER CODE END 0 */
 
 /**
@@ -114,6 +139,10 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 	s_start_init();
+#if START_USING_UDELAY
+  DWT_Init();
+  s_udelay_set_hook(DWT_Delay_us);
+#endif
 
   s_mutex_init(&mutex1,START_IPC_FLAG_FIFO);
 
@@ -149,9 +178,6 @@ int main(void)
    /* USER CODE END WHILE */
 
    /* USER CODE BEGIN 3 */
-		k++;
-		HAL_Delay(500);
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
  }
   /* USER CODE END 3 */
 }

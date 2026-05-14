@@ -21,6 +21,9 @@
 #define START_DEBUG                     1
 #define START_USING_IPC                 1
 
+#define START_USING_UDELAY              1    /* Enable us-level blocking delay feature */
+#define START_IDLE_HOOK_LIST_SIZE       4    /* Max number of idle hooks (0 to disable) */
+
 
 
 

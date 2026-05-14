@@ -136,6 +136,24 @@ void s_putc(char c)
 
 ---
 
+## 8. 特性钩子注册：高精度 US 级延迟 (新增)
+微秒级延时不属于通用时间片范畴。通过 `START_USING_UDELAY` 开启后，在 `board.c` 或相关地方实现并注入：
+```c
+// 借助 Cortex-M 共通的 SysTick 外设快速查询特性，实现无侵入拦截
+static void systick_udelay_impl(s_uint32_t us)
+{
+    s_uint32_t start, now, delta, reload, us_tick;
+    start = SysTick->VAL;
+    reload = SysTick->LOAD;
+    us_tick = SystemCoreClock / 1000000UL;
+    
+    do {
+        now = SysTick->VAL;
+        delta = start >= now ? start - now : reload + start - now;
+    } while (delta < us_tick * us);
+}
 
+// 接着在环境初始化时将其注册进内核：
+s_udelay_set_hook(systick_udelay_impl);
 
 完成后系统即可基本运行。

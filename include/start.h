@@ -167,7 +167,14 @@ s_status s_msgqueue_send(s_pmsgqueue mq, const void *buffer, s_uint16_t size);
 s_status s_msgqueue_urgent(s_pmsgqueue mq, const void *buffer, s_uint16_t size);
 s_status s_msgqueue_recv(s_pmsgqueue mq, void *buffer, s_uint16_t size, s_int32_t timeout);
 #endif
-
+#endif
+#if START_USING_UDELAY
+void s_udelay_set_hook(void (*hook)(s_uint32_t us));
+void s_udelay(s_uint32_t us);
+#endif
+#if START_IDLE_HOOK_LIST_SIZE > 0
+s_status s_idle_sethook(void (*hook)(void));
+s_status s_idle_delhook(void (*hook)(void));
 #endif
 /**
  * @brief Find first (least significant) bit set.

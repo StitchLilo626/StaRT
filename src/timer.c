@@ -8,6 +8,7 @@
  * @note
  *   History:
  *     - 2025-08-26 1.0.2 StitchLilo626: Translate internal comments to English.
+ *     - 2026-05-13 1.0.3 StitchLilo626: Add s_udelay interface via hook mechanism.
  */
 
 #include "start.h"
@@ -51,6 +52,38 @@ void s_mdelay(s_uint32_t ms)
     s_uint32_t tick = s_tick_from_ms(ms);
     s_thread_sleep(tick);
 }
+
+#if START_USING_UDELAY
+/** Hardware us-level delay hook function pointer. */
+static void (*s_hw_udelay_hook)(s_uint32_t us) = NULL;
+
+/**
+ * @brief Register the low-level hardware us delay implementation.
+ * @param hook Function pointer to the hardware delay logic.
+ */
+void s_udelay_set_hook(void (*hook)(s_uint32_t us))
+{
+    s_hw_udelay_hook = hook;
+}
+
+/**
+ * @brief Pure blocking microsecond delay (does NOT suspend thread).
+ * @param us Microseconds to delay.
+ */
+void s_udelay(s_uint32_t us)
+{
+    if (s_hw_udelay_hook != NULL)
+    {
+        s_hw_udelay_hook(us);
+    }
+    else
+    {
+        /* Fallback software delay if hardware hook is not registered. */
+        volatile s_uint32_t count = us * 8; 
+        while (count--) { }
+    }
+}
+#endif /* START_USING_UDELAY */
 
 /**
  * @brief Get current global tick count since system start.
