@@ -1,42 +1,9 @@
-*.pyc
-*.map
-*.dblite
-*.elf
-*.bin
-*.hex
-*.axf
-*.exe
-*.pdb
-*.idb
-*.ilk
-*.old
-build
-Debug
-documentation/html
-packages/
-*~
-*.o
-*.obj
-*.out
-*.bak
-*.dep
-*.lib
-*.i
-*.d
-.DS_Stor*
-.config 3
-.config 4
-.config 5
-Midea-X1
-*.uimg
-GPATH
-GRTAGS
-GTAGS
-.vscode
+# uVision output directory from StaRT-stm32f103c8.uvprojx
+/StaRT-stm32f103c8/
+/Objects/
+/Listings/
+
+# Per-user debugger state. Keep .uvprojx, .uvoptx, .scvd and startup .s.
+*.uvguix*
 JLinkLog.txt
 JLinkSettings.ini
-DebugConfig/
-RTE/
-settings/
-*.uvguix*
-cconfig.h

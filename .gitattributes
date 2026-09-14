@@ -1,0 +1,20 @@
+# Normalize text in Git. Explicit LF rules override Windows autocrlf for
+# project-owned files; do not mechanically reformat vendor dependencies.
+* text=auto
+/src/** text eol=lf
+/include/** text eol=lf
+/libcpu/** text eol=lf
+/scripts/** text eol=lf
+/.github/** text eol=lf
+*.md text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.editorconfig text eol=lf
+/LICENSE text eol=lf
+/MAINTAINERS text eol=lf
+
+*.png binary
+*.jpg binary
+*.pdf binary
+*.a binary
+*.lib binary

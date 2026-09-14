@@ -1,0 +1,36 @@
+# Local credentials and analysis caches
+.env
+.env.*
+!.env.example
+/.codegraph/
+__pycache__/
+*.pyc
+
+# Editor and operating-system state
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Build products; keep vendor archives under Drivers/ tracked.
+*.o
+*.obj
+*.d
+*.dep
+*.axf
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+*.lnp
+*.crf
+*.htm.build_log
+build/
+Debug/
+Release/
+
+# Board-specific output directories belong in the BSP's .gitignore.
