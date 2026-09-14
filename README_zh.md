@@ -101,12 +101,17 @@ void s_putc(char c) { /* UART发送 */ }
 | 日志交叉 | 正常竞争，可忽略或加锁 |
 
 ## 8. 许可证
+StaRT 自有代码采用 [MIT 许可证](LICENSE)；`Drivers/` 内第三方文件保留
+各自许可证。
+
 ```
 SPDX-License-Identifier: MIT
 Copyright (c) 2025
 ```
 
 ## 9. 贡献
+提交规范、Git 工作流和内核验证要求见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
 欢迎提交 Issue / PR：  
 - 保持单一职责
 - 补充简要 Doxygen 注释

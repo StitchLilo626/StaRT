@@ -1,0 +1,8 @@
+# type(scope): imperative summary (maximum 72 characters, no final period)
+
+# Explain the problem, impact and reason for the change.
+# Keep one logical change per commit; wrap prose at about 72 columns.
+
+# Validation: actual checks and results, or explicitly state not run.
+# Fixes: use a verified 12+ character commit ID and its original subject.
+# Never invent review, testing or sign-off trailers.

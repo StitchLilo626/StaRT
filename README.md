@@ -24,8 +24,8 @@ bsp/            Board support packet
 ```
 
 Key headers:
-- [include/start.h](../../include/start.h): Public API
-- [include/sdef.h](../../include/sdef.h): Types, structs, macros
+- [include/start.h](include/start.h): Public API
+- [include/sdef.h](include/sdef.h): Types, structs, macros
 - Board config: `bsp/.../Core/Inc/StaRT_Config.h` (see [readme/StaRT_CONFIG.md](readme/StaRT_CONFIG.md))
 
 ## 3. Configuration Overview
@@ -86,14 +86,14 @@ void s_putc(char c)
 ```
 
 ## 5. Core APIs (Snapshot)
-From [include/start.h](../../include/start.h):
+From [include/start.h](include/start.h):
 - Thread: `s_thread_init`, `s_thread_startup`, `s_thread_sleep`, `s_thread_yield`, `s_thread_exit`, `s_thread_delete`, `s_thread_restart`
 - Scheduler control: `s_sched_start`
 - Timing: `s_mdelay`, `s_tick_get`
 - Semaphore (partial): `s_sem_init`, `s_sem_take`, `s_sem_release`
 - Debug / log: `s_printf`, `S_DEBUG_LOG`
 
-Return codes: `s_status` (see [include/sdef.h](../../include/sdef.h))
+Return codes: `s_status` (see [include/sdef.h](include/sdef.h))
 
 ## 6. Timing Model
 - Global tick: incremented in SysTick via `s_tick_increase()`
@@ -116,12 +116,18 @@ More related to transplantation (see extended guide [readme/StaRT_TRANS.md](read
 - Minimal inline assembly isolation
 
 ## 9. License
+See [LICENSE](LICENSE) for StaRT's MIT license. Third-party files under
+`Drivers/` retain their own licenses.
+
 ```
 Copyright (c) 2025 StaRT
 SPDX-License-Identifier: MIT
 ```
 
 ## 10. Contributing
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for the commit format, Git workflow,
+repository checks and kernel validation requirements.
+
 1. Fork / branch
 2. Keep modules small & isolated
 3. Add brief Doxygen comments
