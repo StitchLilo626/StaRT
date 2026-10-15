@@ -26,3 +26,23 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: python3 scripts/check_repository.py --base "$BASE_SHA"
+
+  kernel-c-compile:
+    name: Cortex-M3 C compile (${{ matrix.optimization }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        optimization: [O0, Os]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install GNU Arm compiler (no target C library needed)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gcc-arm-none-eabi
+      - name: Compile kernel C objects and public-header probes
+        run: python3 scripts/check_kernel_compile.py --optimization "${{ matrix.optimization }}"

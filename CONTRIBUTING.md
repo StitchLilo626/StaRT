@@ -94,6 +94,16 @@ python scripts/check_repository.py --base origin/master
 是否混入被忽略的文件。旧历史不追溯套用新格式。GitHub Actions 在 PR 中
 检查目标分支到 PR HEAD 的提交范围；普通推送只运行基础检查。
 
+GitHub Actions 另行运行 GNU Arm Cortex-M3 C 编译检查，覆盖真实 BSP 配置、
+功能裁剪和 `O0/Os` 两种优化。安装 `arm-none-eabi-gcc` 后可在本地执行：
+
+```sh
+python scripts/check_kernel_compile.py
+```
+
+它只生成内核 C 目标文件，不包含 ARMASM、BSP 固件链接或运行测试。
+配置矩阵、告警选项和验证边界见 [C 编译检查说明](readme/StaRT_CI.md)。
+
 当前示例工程：
 `bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx`，目标 `StaRT`。
 工程记录 ARM Compiler 5.06 update 7 (build 960) 和
