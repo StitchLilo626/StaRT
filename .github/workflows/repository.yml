@@ -46,3 +46,64 @@ jobs:
           sudo apt-get install --no-install-recommends -y gcc-arm-none-eabi
       - name: Compile kernel C objects and public-header probes
         run: python3 scripts/check_kernel_compile.py --optimization "${{ matrix.optimization }}"
+
+  stm32-firmware:
+    name: STM32F103C8 firmware (${{ matrix.build_type }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, MinSizeRel]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install firmware build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y cmake ninja-build gcc-arm-none-eabi libnewlib-arm-none-eabi
+      - name: Configure STM32F103C8 firmware
+        run: >-
+          cmake -S . -B build/firmware -G Ninja
+          -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Compile, link and validate ELF, HEX and BIN
+        run: |
+          arm-none-eabi-gcc --version
+          cmake --build build/firmware --parallel 2
+      - name: Check rejection of invalid images and linker inputs
+        run: python3 tests/firmware/check_regressions.py build/firmware/StaRT-stm32f103c8.elf
+      - name: Save validated firmware and build report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: stm32f103c8-${{ matrix.build_type }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/firmware/StaRT-stm32f103c8.elf
+            build/firmware/StaRT-stm32f103c8.hex
+            build/firmware/StaRT-stm32f103c8.bin
+            build/firmware/StaRT-stm32f103c8.map
+            build/firmware/firmware-report.json
+            build/firmware/compile_commands.json
+
+  cortex-m3-port:
+    name: Cortex-M3 GNU port (QEMU)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install core emulator and toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gcc-arm-none-eabi libnewlib-arm-none-eabi qemu-system-arm
+      - name: Execute startup and context-switch smoke tests
+        run: |
+          qemu-system-arm --version
+          python3 scripts/check_cpu_port.py --optimization O0 --output build/port-O0
+          python3 scripts/check_cpu_port.py --optimization Os --output build/port-Os

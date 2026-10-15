@@ -13,6 +13,10 @@
 .gitmessage text eol=lf
 /LICENSE text eol=lf
 /MAINTAINERS text eol=lf
+/CMakeLists.txt text eol=lf
+/cmake/** text eol=lf
+/bsp/stm32/stm32f103c8/GNU/** text eol=lf
+/tests/** text eol=lf
 
 *.png binary
 *.jpg binary
