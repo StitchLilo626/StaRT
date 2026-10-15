@@ -104,6 +104,11 @@ python scripts/check_kernel_compile.py
 它只生成内核 C 目标文件，不包含 ARMASM、BSP 固件链接或运行测试。
 配置矩阵、告警选项和验证边界见 [C 编译检查说明](readme/StaRT_CI.md)。
 
+完整 GNU 示例固件可使用根目录 CMake 构建，并生成 ELF、HEX、BIN 和 map；
+CI 运行 Debug/MinSizeRel 构建、产物检查及 QEMU Cortex-M3 核心测试。
+命令、依赖、Keil 共存方式与验证边界见
+[STM32F103C8 GNU 固件构建](readme/StaRT_GNU_FIRMWARE.md)。
+
 当前示例工程：
 `bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx`，目标 `StaRT`。
 工程记录 ARM Compiler 5.06 update 7 (build 960) 和
