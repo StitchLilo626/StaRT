@@ -14,6 +14,7 @@
 #define __TYPEDEF_H_
 
 #include "StaRT_Config.h"
+#include <stddef.h>
 
 /* Fixed width integer aliases */
 typedef signed char         s_int8_t;

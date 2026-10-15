@@ -20,7 +20,7 @@ extern s_list     s_thread_defunct_list;
 /**
  * @brief Low-level field initialization (no state / ready list insertion).
  */
-void _s_thread_init(s_pthread thread,
+static void _s_thread_init(s_pthread thread,
                     void *entry,
                     void *stackaddr,
                     s_uint32_t stacksize,
