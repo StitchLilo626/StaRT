@@ -17,6 +17,7 @@
 
 #include "sdef.h"
 #include <stddef.h>
+#include <stdarg.h>
 
 /** Pointer to currently running thread (NULL before scheduler start). */
 extern s_pthread s_current_thread;
@@ -86,6 +87,9 @@ void s_start_banner(void);
  * @param fmt Format string.
  */
 void s_printf(const char *fmt, ...);
+/** Weak character output hook and buffer formatter. */
+void s_putc(char c);
+int s_vsnprintf(char *buffer, size_t size, const char *fmt, va_list args);
 
 /* Scheduler control APIs */
 void s_sched_init(void);
@@ -135,6 +139,7 @@ s_status s_thread_restart(s_pthread thread);
 /* Timer subsystem */
 void      s_timer_list_init(void);
 void      s_mdelay(s_uint32_t ms);
+s_uint32_t s_tick_from_ms(s_uint32_t ms);
 void      s_delay(s_uint32_t tick);
 s_status  s_timer_init(s_ptimer timer, void (*timeout_func)(void *p), void *p, s_uint32_t tick);
 void      s_timer_check(void);
@@ -146,6 +151,9 @@ s_status  s_timer_start(s_ptimer timer);
 void      timeout_function(void *p);
 
 #if START_USING_IPC
+/* Shared IPC wait-list helpers. */
+s_status s_ipc_suspend(s_list *list, s_pthread thread, s_uint8_t flag);
+s_status s_ipc_list_resume_all(s_list *list);
 /* IPC: semaphore / mutex / message queue APIs */
 #if START_USING_SEMAPHORE
 s_status s_sem_init(s_psem sem, s_uint16_t value, s_uint8_t flag);

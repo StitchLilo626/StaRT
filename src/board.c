@@ -121,7 +121,7 @@ static void idle_thread_entry(void)
 /**
  * @brief Initialize and start idle thread (lowest priority).
  */
-s_status s_idle_thread_init(void)
+static s_status s_idle_thread_init(void)
 {
     s_status ret = s_thread_init(&idle_thread,
                                  idle_thread_entry,
