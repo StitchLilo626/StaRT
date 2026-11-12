@@ -4,6 +4,19 @@
 
 StaRT is a lightweight real-time kernel designed for Cortex-M. The objective is to demonstrate priority scheduling, time slices, sleep timers, and the most basic IPC framework using as little code and resources as possible.
 
+## Build the STM32F103C8 example
+
+**CMake and GNU Arm.** Install CMake 3.20+, Ninja, Python 3.9+, and a GNU Arm toolchain with newlib-nano. Run these commands from the repository root.
+
+```sh
+cmake --preset stm32-debug
+cmake --build --preset stm32-debug
+```
+
+Find the firmware in `build/stm32-debug/`. Use `stm32-size` for a size-optimized build. See the [GNU firmware build guide](readme/StaRT_GNU_FIRMWARE.md).
+
+**Keil MDK.** Open [StaRT-stm32f103c8.uvprojx](bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx) and build the `StaRT` target.
+
 ## 1. Features (Current)
 - Fixed priorities + Bitmap fast lookup (0 is the highest)
 - Time slice rotation (round-robin) with the same priority

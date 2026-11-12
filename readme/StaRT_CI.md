@@ -1,5 +1,8 @@
 # Cortex-M3 C 源码编译检查
 
+本页描述 C 源码配置矩阵。新增的完整固件链接、产物检查和 QEMU 核心测试见
+[STM32F103C8 GNU 固件构建](StaRT_GNU_FIRMWARE.md)。
+
 `.github/workflows/repository.yml` 在原有仓库检查之外增加
 `Cortex-M3 C compile (O0/Os)` 两个任务，每次 push 和 pull request 执行。
 无需开发板、Keil 许可证、CMake、模拟器或目标 C 运行库。检查由 Python 3.9+
@@ -22,8 +25,8 @@
   使用 builtin，不能据此验证 ARMCC 的内嵌汇编实现。
 - `libcpu/CM3/arm.s` 使用 ARMASM 的 `IMPORT/EXPORT/AREA/PROC/ENDP` 等指令。
   板级 `startup_stm32f103xb.s` 同样使用 ARMASM 语法，并跳转到 ARM 运行库
-  `__main`。它们不能直接由 GNU assembler 编译。当前没有 GNU 链接脚本、
-  GNU 启动及运行库配置，完整 GNU 固件移植应另行实现并验证。
+  `__main`。它们不能直接由 GNU assembler 编译。该基线尚无 GNU 链接脚本、
+  GNU 启动及运行库配置；后续独立 GNU 构建见上方链接。
 
 本次仅为公开 API 补齐既有实现的函数原型和标准头文件依赖，并将两个文件
 内部初始化函数设为 `static`；不改变调度算法，不修改 Keil 工程、ARMASM

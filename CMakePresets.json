@@ -1,0 +1,45 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "stm32f103c8-base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/arm-none-eabi.cmake"
+            }
+        },
+        {
+            "name": "stm32-debug",
+            "displayName": "STM32F103C8 Debug",
+            "inherits": "stm32f103c8-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "stm32-size",
+            "displayName": "STM32F103C8 MinSizeRel",
+            "inherits": "stm32f103c8-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "stm32-debug",
+            "configurePreset": "stm32-debug"
+        },
+        {
+            "name": "stm32-size",
+            "configurePreset": "stm32-size"
+        }
+    ]
+}

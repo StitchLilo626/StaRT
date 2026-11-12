@@ -14,6 +14,7 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
+/CMakeUserPresets.json
 
 # Build products; keep vendor archives under Drivers/ tracked.
 *.o

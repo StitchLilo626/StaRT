@@ -98,7 +98,7 @@ void DWT_Init(void)
     DWT_CR |= DWT_CR_CYCCNTENA;
 }
 
-void DWT_Delay_us(uint32_t us)
+void DWT_Delay_us(s_uint32_t us)
 {
     uint32_t start = DWT_CYCCNT;
     uint32_t ticks = us * (SystemCoreClock / 1000000);
