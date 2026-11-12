@@ -4,6 +4,19 @@
 
 StaRT 是一个轻量实时内核，面向 Cortex‑M。目标：用尽量少的代码和资源展示优先级调度、时间片、睡眠定时器与最基本的 IPC 框架。
 
+## 构建 STM32F103C8 示例
+
+**CMake + GNU Arm**。安装 CMake 3.20+、Ninja、Python 3.9+ 和带 newlib-nano 的 GNU Arm 工具链，在仓库根目录执行以下命令。
+
+```sh
+cmake --preset stm32-debug
+cmake --build --preset stm32-debug
+```
+
+固件产物位于 `build/stm32-debug/`。使用 `stm32-size` 可构建体积优化版本。详见 [GNU 固件构建指南](readme/StaRT_GNU_FIRMWARE.md)。
+
+**Keil MDK**。打开 [StaRT-stm32f103c8.uvprojx](bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx)，构建 `StaRT` 目标。
+
 ## 1. 已具备功能
 - 固定优先级 + 位图快速查找（0 为最高）
 - 同优先级时间片轮转 

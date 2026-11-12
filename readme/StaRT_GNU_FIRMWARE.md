@@ -14,19 +14,20 @@ sudo apt-get update
 sudo apt-get install --no-install-recommends -y cmake ninja-build gcc-arm-none-eabi libnewlib-arm-none-eabi
 ```
 
-从仓库根目录构建（CMake 3.20+、Python 3.9+）：
+预设适用于 Windows 和 Linux，要求 CMake 3.20+、Ninja、Python 3.9+ 以及带
+newlib-nano 的 GNU Arm 工具链。确保这些工具位于 `PATH`，再从仓库根目录构建。
 
 ```sh
-cmake -S . -B build/stm32-debug -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake -DCMAKE_BUILD_TYPE=Debug
-cmake --build build/stm32-debug --parallel 2
+cmake --preset stm32-debug
+cmake --build --preset stm32-debug
 
-cmake -S . -B build/stm32-size -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake -DCMAKE_BUILD_TYPE=MinSizeRel
-cmake --build build/stm32-size --parallel 2
+cmake --preset stm32-size
+cmake --build --preset stm32-size
 ```
 
-Windows 安装 GNU Arm Embedded Toolchain、CMake、Ninja 和 Python 后使用同样
-命令；PowerShell 中将两个 `-D...` 参数分别用引号包住。不指定构建类型时
-默认为 `MinSizeRel`。工具链可执行文件需要位于 PATH。
+`stm32-debug` 对应 `Debug`，输出到 `build/stm32-debug/`。
+`stm32-size` 对应 `MinSizeRel`，输出到 `build/stm32-size/`。
+使用支持 CMake 预设的 IDE 时，打开仓库根目录并选择相应预设即可。
 
 每个构建目录包含 `StaRT-stm32f103c8.elf/.hex/.bin/.map`、
 `firmware-report.json` 和 `compile_commands.json`。构建自动检查产物，发现

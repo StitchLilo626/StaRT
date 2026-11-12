@@ -57,6 +57,11 @@ target_link_options(start_stm32f103c8 PRIVATE
     -Wl,-Map=${CMAKE_BINARY_DIR}/StaRT-stm32f103c8.map,--cref
 )
 add_custom_command(TARGET start_stm32f103c8 POST_BUILD
+    BYPRODUCTS
+        "${CMAKE_BINARY_DIR}/StaRT-stm32f103c8.hex"
+        "${CMAKE_BINARY_DIR}/StaRT-stm32f103c8.bin"
+        "${CMAKE_BINARY_DIR}/StaRT-stm32f103c8.map"
+        "${CMAKE_BINARY_DIR}/firmware-report.json"
     COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:start_stm32f103c8>
         ${CMAKE_BINARY_DIR}/StaRT-stm32f103c8.hex
     COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:start_stm32f103c8>
