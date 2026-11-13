@@ -117,6 +117,37 @@ jobs:
           python3 scripts/check_cpu_port.py --optimization O0 --output build/port-O0
           python3 scripts/check_cpu_port.py --optimization Os --output build/port-Os
 
+  nucleo-f439zi:
+    name: NUCLEO-F439ZI firmware and Cortex-M4 core (QEMU)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install GNU Arm tools and QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y cmake ninja-build gcc-arm-none-eabi libnewlib-arm-none-eabi qemu-system-arm
+      - name: Build and validate firmware
+        run: |
+          cmake --preset nucleo-f439zi
+          cmake --build --preset nucleo-f439zi --parallel 2
+      - name: Execute Cortex-M4 startup and context-switch tests
+        run: |
+          python3 scripts/check_cpu_port.py --cpu cortex-m4 --optimization O0 --output build/port-m4-O0
+          python3 scripts/check_cpu_port.py --cpu cortex-m4 --optimization Os --output build/port-m4-Os
+      - name: Save validated firmware and build report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nucleo-f439zi
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/nucleo-f439zi/StaRT-nucleo-f439zi.*
+            build/nucleo-f439zi/firmware-report.json
+
   stc8h-port:
     name: STC8H8K64U firmware and MCS-51 core (uCsim)
     runs-on: ubuntu-24.04

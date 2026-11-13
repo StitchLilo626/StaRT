@@ -17,6 +17,7 @@
 /CMakePresets.json text eol=lf
 /cmake/** text eol=lf
 /bsp/stm32/stm32f103c8/GNU/** text eol=lf
+/bsp/stm32/nucleo-f439zi/** text eol=lf
 /bsp/stc/stc8h8k64u/** text eol=lf
 /tests/** text eol=lf
 

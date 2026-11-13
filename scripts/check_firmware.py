@@ -12,6 +12,13 @@ FLASH = 0x08000000
 FLASH_SIZE = 64 * 1024
 RAM = 0x20000000
 RAM_SIZE = 20 * 1024
+BOARDS = {
+    "stm32f103c8": ("STM32F103C8", FLASH_SIZE, RAM_SIZE, 59, 0x400,
+                   False, ("HAL_Init", "HAL_UART_Transmit", "DWT_Delay_us")),
+    "nucleo-f439zi": ("NUCLEO-F439ZI", 2 * 1024 * 1024, 192 * 1024, 107, 0x800,
+                     True, ("board_init", "board_tick_start", "s_sem_take", "s_sem_release",
+                            "s_cm4f_fpu_init")),
+}
 
 
 def require(condition, message):
@@ -27,7 +34,7 @@ class Elf:
         require(header[1:3] == (2, 40), "Expected linked ARM executable")
         self.entry = header[4]
         require(header[7] & 0xff000000 == 0x05000000, "Expected ARM EABI5")
-        require(not header[7] & 0x400, "Hard-float ABI is invalid on Cortex-M3")
+        self.hard_float = bool(header[7] & 0x400)
         require(header[9] == 32 and header[11] == 40, "Unexpected ELF table layout")
         self.segments = [self.unpack("8I", header[5] + i * 32) for i in range(header[10])]
         sections = [self.unpack("10I", header[6] + i * 40) for i in range(header[12])]
@@ -64,25 +71,27 @@ class Elf:
         return self.symbols[name][0]
 
 
-def validate_elf(data):
+def validate_elf(data, board="stm32f103c8"):
+    _, flash_limit, ram_size, vector_count, stack_size, hard_float, board_symbols = BOARDS[board]
     elf = Elf(data)
+    require(elf.hard_float == hard_float, "Incorrect floating-point ABI for board")
     undefined = [name for name, symbol in elf.symbols.items() if symbol[3] == 0]
     require(not undefined, "Undefined symbols: " + ", ".join(undefined))
     for name in ("Reset_Handler", "PendSV_Handler", "SysTick_Handler", "main",
                  "SystemInit", "__libc_init_array", "_init", "s_start_init",
                  "s_sched_start", "s_irq_disable", "s_irq_enable",
                  "s_first_switch_task", "s_normal_switch_task", "s_putc",
-                 "HAL_Init", "HAL_UART_Transmit", "DWT_Delay_us"):
+                 *board_symbols):
         value = elf.symbol(name)
-        require(FLASH <= (value & ~1) < FLASH + FLASH_SIZE and value & 1,
+        require(FLASH <= (value & ~1) < FLASH + flash_limit and value & 1,
                 "Invalid Thumb function: " + name)
         require(elf.symbols[name][2] >> 4 == 1, "Expected strong definition: " + name)
 
     require(".isr_vector" in elf.sections, "Missing vector section")
     vectors = elf.sections[".isr_vector"]
-    require(vectors[3] == FLASH and vectors[5] == 59 * 4, "Invalid vector location/size")
-    words = struct.unpack("<59I", elf.section_data(vectors))
-    require(words[0] == RAM + RAM_SIZE and words[0] % 8 == 0, "Invalid initial MSP")
+    require(vectors[3] == FLASH and vectors[5] == vector_count * 4, "Invalid vector location/size")
+    words = struct.unpack(f"<{vector_count}I", elf.section_data(vectors))
+    require(words[0] == RAM + ram_size and words[0] % 8 == 0, "Invalid initial MSP")
     require(elf.entry == words[1] == elf.symbol("Reset_Handler"), "Invalid reset entry")
     for slot, name in ((14, "PendSV_Handler"), (15, "SysTick_Handler")):
         require(words[slot] == elf.symbol(name), "Incorrect vector: " + name)
@@ -91,18 +100,19 @@ def validate_elf(data):
         if slot in (7, 8, 9, 10, 13):
             require(value == 0, "Reserved vector is not zero")
         else:
-            require(value & 1 and FLASH <= (value & ~1) < FLASH + FLASH_SIZE,
+            require(value & 1 and FLASH <= (value & ~1) < FLASH + flash_limit,
                     "Invalid interrupt vector {}".format(slot))
 
-    require(elf.symbol("_estack") == RAM + RAM_SIZE, "Incorrect stack top")
+    require(elf.symbol("_estack") == RAM + ram_size, "Incorrect stack top")
     require(elf.symbol("__StackTop") == elf.symbol("_estack"), "Stack top mismatch")
     require(elf.symbol("__StackLimit") % 8 == 0, "Unaligned MSP stack limit")
+    require(elf.symbol("__StackLimit") == RAM + ram_size - stack_size, "Incorrect MSP reserve")
     require(RAM <= elf.symbol("_end") <= elf.symbol("__StackLimit"), "RAM/stack overlap")
     for section_name, start, end, section_type in (
         (".data", "_sdata", "_edata", 1), (".bss", "_sbss", "_ebss", 8)
     ):
         section = elf.sections[section_name]
-        require(section[1] == section_type and RAM <= section[3] < RAM + RAM_SIZE,
+        require(section[1] == section_type and RAM <= section[3] < RAM + ram_size,
                 "Invalid section: " + section_name)
         require(section[3] == elf.symbol(start) and
                 section[3] + section[5] == elf.symbol(end), "Startup boundary mismatch")
@@ -115,10 +125,10 @@ def validate_elf(data):
             continue
         require(filesz <= memsz and offset + filesz <= len(data), "Invalid load segment")
         require(not (flags & 1 and flags & 2), "Writable executable load segment")
-        require((FLASH <= vaddr and vaddr + memsz <= FLASH + FLASH_SIZE) or
-                (RAM <= vaddr and vaddr + memsz <= RAM + RAM_SIZE), "Load segment outside device")
+        require((FLASH <= vaddr and vaddr + memsz <= FLASH + flash_limit) or
+                (RAM <= vaddr and vaddr + memsz <= RAM + ram_size), "Load segment outside device")
         if filesz:
-            require(FLASH <= paddr and paddr + filesz <= FLASH + FLASH_SIZE,
+            require(FLASH <= paddr and paddr + filesz <= FLASH + flash_limit,
                     "Flash load image overflow")
             loads.append((paddr, data[offset:offset + filesz]))
             if vaddr == elf.symbol("_sdata"):
@@ -174,18 +184,20 @@ def validate_hex(text, expected, entry):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("elf", type=Path)
+    parser.add_argument("--board", choices=BOARDS, default="stm32f103c8")
     parser.add_argument("--report", type=Path)
     args = parser.parse_args()
     try:
-        report, expected = validate_elf(args.elf.read_bytes())
+        report, expected = validate_elf(args.elf.read_bytes(), args.board)
         require(args.elf.with_suffix(".bin").read_bytes() == expected, "BIN does not match ELF")
         validate_hex(args.elf.with_suffix(".hex").read_text(encoding="ascii"),
                      expected, int(report["entry"], 16))
         require(args.elf.with_suffix(".map").stat().st_size > 0, "Missing linker map")
         if args.report:
             args.report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-        print("PASS: full STM32F103C8 firmware link and ELF/BIN/HEX checks")
-        print("Flash {flash_bytes}/65536 B; static RAM {static_ram_bytes} B; "
+        board_name, flash_limit, *_ = BOARDS[args.board]
+        print(f"PASS: full {board_name} firmware link and ELF/BIN/HEX checks")
+        print(f"Flash {{flash_bytes}}/{flash_limit} B; static RAM {{static_ram_bytes}} B; "
               "MSP reserve {reserved_msp_bytes} B; unallocated RAM {free_ram_bytes} B".format(**report))
         print("Build/image validation only; STM32 peripheral timing and hardware were not tested.")
         return 0

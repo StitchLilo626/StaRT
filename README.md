@@ -17,6 +17,12 @@ Find the firmware in `build/stm32-debug/`. Use `stm32-size` for a size-optimized
 
 **Keil MDK.** Open [StaRT-stm32f103c8.uvprojx](bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx) and build the `StaRT` target.
 
+## Build the NUCLEO-F439ZI example
+
+Run `cmake --preset nucleo-f439zi` and `cmake --build --preset nucleo-f439zi`.
+The example uses the ST-LINK virtual COM port, two user LEDs, and a counting semaphore.
+See the [NUCLEO-F439ZI port guide](readme/StaRT_NUCLEO_F439ZI.md) for flashing instructions.
+
 ## Build the STC8H8K64U example
 
 Install SDCC and Ninja, then run `cmake --preset stc8h8k64u` and
@@ -36,7 +42,12 @@ for clock setup, the flash image, and simulator tests.
 ## 2. Directory Layout
 ```
 include/        Public kernel headers (e.g. start.h, sdef.h)
-libcpu/arm/CM3/     Cortex-M3 port (context switch asm, stack init, ffs)
+libcpu/
+  arm/
+    common/     Shared Cortex-M GNU startup and interrupt helpers
+    CM3/        Cortex-M3 CPU port
+    CM4F/       Cortex-M4F CPU port with floating-point context switching
+  MCS51/        8051 CPU port
 src/            Core modules (scheduler, thread, timer, list, service, board, ipc draft)
 readme/         Documentation (*.md)
 bsp/            Board support packet

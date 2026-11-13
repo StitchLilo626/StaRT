@@ -17,6 +17,12 @@ cmake --build --preset stm32-debug
 
 **Keil MDK**。打开 [StaRT-stm32f103c8.uvprojx](bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx)，构建 `StaRT` 目标。
 
+## 构建 NUCLEO-F439ZI 示例
+
+执行 `cmake --preset nucleo-f439zi` 和 `cmake --build --preset nucleo-f439zi`。
+示例使用板载 ST-LINK 虚拟串口、两个用户灯和计数信号量。
+烧录步骤见 [NUCLEO-F439ZI 移植指南](readme/StaRT_NUCLEO_F439ZI.md)。
+
 ## 构建 STC8H8K64U 示例
 
 安装 SDCC 和 Ninja 后，执行 `cmake --preset stc8h8k64u` 和
@@ -37,7 +43,12 @@ cmake --build --preset stm32-debug
 ## 2. 目录结构
 ```
 include/   公共 API 与类型
-libcpu/    架构移植 (CM3)
+libcpu/
+  arm/
+    common/  Cortex-M 共用的 GNU 启动和中断辅助代码
+    CM3/     Cortex-M3 移植
+    CM4F/    Cortex-M4F 移植，支持浮点上下文切换
+  MCS51/     8051 移植
 src/       内核源码
 readme/    文档
 bsp/       板级支持包

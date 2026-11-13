@@ -1,5 +1,9 @@
 /* Core-only runtime regression test; no STM32 HAL or peripheral emulation. */
 #include "start.h"
+#if defined(__ARM_PCS_VFP)
+#include "cpuport.h"
+int smoke_fp_switch_back(s_uint32_t prev, s_uint32_t next);
+#endif
 
 #define CHECK(condition) do { if (!(condition)) finish(1); } while (0)
 #define ICSR (*(volatile s_uint32_t *)0xe000ed04)
@@ -26,7 +30,13 @@ static void finish(s_uint32_t status)
     for (;;) {}
 }
 
-void SystemInit(void) { system_initialized = 1; }
+void SystemInit(void)
+{
+#if defined(__ARM_PCS_VFP)
+    s_cm4f_fpu_init();
+#endif
+    system_initialized = 1;
+}
 static void __attribute__((constructor)) constructor(void)
 {
     constructed = system_initialized && initialized == 0x12345678 && zeroed == 0;
@@ -76,6 +86,11 @@ static void thread_a(void)
     ICSR = 1u << 28;
     __asm volatile("dsb\nisb" ::: "memory");
     check_thread_stack(stack_a);
+#if defined(__ARM_PCS_VFP)
+    phase = 3;
+    s_normal_switch_task((s_uint32_t)&sp_a, (s_uint32_t)&sp_c);
+    finish(6); /* The second FP context must resume and report the result. */
+#endif
     finish(0);
 }
 
@@ -87,8 +102,17 @@ static void thread_c(void)
     CHECK((s_uint32_t)sp_a >= (s_uint32_t)stack_a);
     CHECK((s_uint32_t)sp_a < (s_uint32_t)(stack_a + sizeof(stack_a)));
     phase = 2;
+#if defined(__ARM_PCS_VFP)
+    s_uint32_t control;
+    __asm volatile("mrs %0, control" : "=r"(control));
+    CHECK((control & 4) == 0); /* First dispatch has a basic frame. */
+    CHECK(smoke_fp_switch_back((s_uint32_t)&sp_c, (s_uint32_t)&sp_a) == 1);
+    CHECK(phase == 3);
+    finish(0);
+#else
     s_normal_switch_task((s_uint32_t)&sp_c, (s_uint32_t)&sp_a);
     for (;;) {}
+#endif
 }
 
 void SysTick_Handler(void) { finish(3); }

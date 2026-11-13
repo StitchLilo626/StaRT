@@ -82,7 +82,7 @@ def main():
         source = directory / (name + ".S")
         source.write_text(fixture + extra, encoding="utf-8")
         result = subprocess.run([args.compiler, "-mcpu=cortex-m3", "-mthumb", "-nostdlib",
-                                 "-Wl,-z,noexecstack", "-T" + str(linker), str(source),
+                                 "-Wl,-z,noexecstack", "-L" + str(ROOT / "cmake"), "-T" + str(linker), str(source),
                                  "-o", str(directory / (name + ".elf"))],
                                 capture_output=True, text=True)
         if result.returncode == 0 or diagnostic not in result.stderr:
@@ -93,7 +93,7 @@ def main():
     source.write_text("void SystemInit(void) {}\nvoid __libc_init_array(void) {}\n"
                       "int main(void) { for (;;) {} }\n", encoding="utf-8")
     result = subprocess.run([args.compiler, "-mcpu=cortex-m3", "-mthumb", "-nostdlib",
-                             "-Wl,-z,noexecstack", "-T" + str(linker), str(source),
+                             "-Wl,-z,noexecstack", "-L" + str(ROOT / "cmake"), "-T" + str(linker), str(source),
                              str(ROOT / "bsp/stm32/stm32f103c8/GNU/startup_stm32f103c8.S"),
                              "-o", str(directory / "missing-handlers.elf")],
                             capture_output=True, text=True)

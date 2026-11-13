@@ -7,7 +7,7 @@
     },
     "configurePresets": [
         {
-            "name": "stm32f103c8-base",
+            "name": "stm32-arm-base",
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
@@ -18,16 +18,27 @@
         {
             "name": "stm32-debug",
             "displayName": "STM32F103C8 Debug",
-            "inherits": "stm32f103c8-base",
+            "inherits": "stm32-arm-base",
             "cacheVariables": {
+                "START_ARM_BOARD": "stm32f103c8",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
             "name": "stm32-size",
             "displayName": "STM32F103C8 MinSizeRel",
-            "inherits": "stm32f103c8-base",
+            "inherits": "stm32-arm-base",
             "cacheVariables": {
+                "START_ARM_BOARD": "stm32f103c8",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "nucleo-f439zi",
+            "displayName": "NUCLEO-F439ZI GNU Arm",
+            "inherits": "stm32-arm-base",
+            "cacheVariables": {
+                "START_ARM_BOARD": "nucleo-f439zi",
                 "CMAKE_BUILD_TYPE": "MinSizeRel"
             }
         },
@@ -49,6 +60,10 @@
         {
             "name": "stm32-size",
             "configurePreset": "stm32-size"
+        },
+        {
+            "name": "nucleo-f439zi",
+            "configurePreset": "nucleo-f439zi"
         },
         {
             "name": "stc8h8k64u",
