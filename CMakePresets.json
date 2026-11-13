@@ -30,6 +30,15 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "MinSizeRel"
             }
+        },
+        {
+            "name": "stc8h8k64u",
+            "displayName": "STC8H8K64U SDCC",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/sdcc-mcs51.cmake"
+            }
         }
     ],
     "buildPresets": [
@@ -40,6 +49,10 @@
         {
             "name": "stm32-size",
             "configurePreset": "stm32-size"
+        },
+        {
+            "name": "stc8h8k64u",
+            "configurePreset": "stc8h8k64u"
         }
     ]
 }

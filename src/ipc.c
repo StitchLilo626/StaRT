@@ -95,6 +95,25 @@ s_status s_ipc_list_resume_all(s_list *list)
 }
 
 #if START_USING_SEMAPHORE
+/* Called with interrupts disabled. Complete the wait before publishing READY. */
+static void s_sem_resume(s_pthread thread, s_status result)
+{
+    s_timer_stop(&thread->timer);
+    thread->timer.timeout_func = timeout_function;
+    s_list_delete(&thread->tlist);
+    thread->sem_wait_result = result;
+    thread->status = START_THREAD_READY;
+    s_sched_insert_thread(thread);
+}
+
+static void s_sem_timeout(void *arg)
+{
+    s_uint32_t level = s_irq_disable();
+    s_sem_resume((s_pthread)arg, S_ERR);
+    s_sched_switch();
+    s_irq_enable(level);
+}
+
 /**
  * @brief Initialize semaphore.
  */
@@ -116,14 +135,15 @@ s_status s_sem_init(s_psem sem, s_uint16_t value, s_uint8_t flag)
  */
 s_status s_sem_delete(s_psem sem)
 {
-    s_uint8_t need_schedule = 0;
     if (sem == NULL)
         return S_NULL;
 
-    if (!s_list_isempty(&sem->parent.suspend_thread))
+    s_uint32_t level = s_irq_disable();
+    s_list *waiters = &sem->parent.suspend_thread;
+    s_uint8_t need_schedule = !s_list_isempty(waiters);
+    while (!s_list_isempty(waiters))
     {
-        s_ipc_list_resume_all(&sem->parent.suspend_thread);
-        need_schedule = 1;
+        s_sem_resume(S_LIST_ENTRY(waiters->next, s_thread, tlist), S_ERR);
     }
 
     sem->count         = 0;
@@ -133,6 +153,7 @@ s_status s_sem_delete(s_psem sem)
 
     if (need_schedule)
         s_sched_switch();
+    s_irq_enable(level);
     return S_OK;
 }
 
@@ -147,10 +168,13 @@ s_status s_sem_take(s_psem sem, s_int32_t time)
 
     if (sem == NULL)
         return S_NULL;
-    if (sem->parent.status == 0)
-        return S_DELETED;
-
     level = s_irq_disable();
+    if (sem->parent.status == 0)
+    {
+        s_irq_enable(level);
+        return S_DELETED;
+    }
+
     if (sem->count > 0)
     {
         sem->count--;
@@ -171,25 +195,19 @@ s_status s_sem_take(s_psem sem, s_int32_t time)
     }
 
     s_ipc_suspend(&sem->parent.suspend_thread, thread, sem->parent.flag);
+    thread->sem_wait_result = S_ERR;
 
     if (time > 0)
     {
+        thread->timer.timeout_func = s_sem_timeout;
         s_timer_ctrl(&(thread->timer), START_TIMER_SET_TIME, &time);
         s_timer_start(&(thread->timer));
     }
 
-    s_irq_enable(level);
     s_sched_switch();
-
-    level = s_irq_disable();
-    if (sem->count > 0)
-    {
-        sem->count--;
-        s_irq_enable(level);
-        return S_OK;
-    }
     s_irq_enable(level);
-    return S_ERR;
+
+    return thread->sem_wait_result;
 }
 
 /**
@@ -198,45 +216,32 @@ s_status s_sem_take(s_psem sem, s_int32_t time)
 s_status s_sem_release(s_psem sem)
 {
     register s_uint32_t level;
-    s_pthread thread;
-    s_uint8_t need_schedule = 0;
 
     if (sem == NULL)
         return S_NULL;
-    if (sem->parent.status == 0)
-        return S_DELETED;
-
     level = s_irq_disable();
+    if (sem->parent.status == 0)
+    {
+        s_irq_enable(level);
+        return S_DELETED;
+    }
+
     if (!s_list_isempty(&sem->parent.suspend_thread))
     {
-        if (sem->count < SEM_VALUE_MAX)
-            sem->count++;
-        else
-        {
-            s_irq_enable(level);
-            return S_ERR;
-        }
-
-        thread = S_LIST_ENTRY(sem->parent.suspend_thread.next, s_thread, tlist);
-        s_list_delete(&thread->tlist);
-        thread->status = START_THREAD_READY;
-        s_sched_insert_thread(thread);
-        need_schedule = 1;
+        s_pthread thread = S_LIST_ENTRY(sem->parent.suspend_thread.next, s_thread, tlist);
+        s_sem_resume(thread, S_OK);
+        s_sched_switch();
+    }
+    else if (sem->count == SEM_VALUE_MAX)
+    {
+        s_irq_enable(level);
+        return S_ERR;
     }
     else
     {
-        if (sem->count < SEM_VALUE_MAX)
-            sem->count++;
-        else
-        {
-            s_irq_enable(level);
-            return S_ERR;
-        }
+        sem->count++;
     }
     s_irq_enable(level);
-
-    if (need_schedule)
-        s_sched_switch();
     return S_OK;
 }
 #endif /* START_USING_SEMAPHORE */

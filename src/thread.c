@@ -20,13 +20,21 @@ extern s_list     s_thread_defunct_list;
 /**
  * @brief Low-level field initialization (no state / ready list insertion).
  */
-static void _s_thread_init(s_pthread thread,
-                    void *entry,
-                    void *stackaddr,
-                    s_uint32_t stacksize,
-                    s_int8_t priority,
-                    s_uint32_t tick)
+static s_status _s_thread_init(s_pthread thread,
+                              s_thread_entry_t entry,
+                              void *stackaddr,
+                              s_uint32_t stacksize,
+                              s_int8_t priority,
+                              s_uint32_t tick)
 {
+#if defined(__SDCC_mcs51)
+    void *context = s_stack_init(entry, stackaddr, stacksize);
+#else
+    void *context = s_stack_init(entry, (s_uint8_t *)stackaddr + stacksize);
+#endif
+    if (context == NULL)
+        return S_INVALID;
+
     s_list_init(&thread->tlist);
 
     thread->entry            = entry;
@@ -36,19 +44,18 @@ static void _s_thread_init(s_pthread thread,
     thread->init_priority    = priority;
     thread->number_mask      = 1UL << thread->current_priority;
 
-    /* Prepare initial stacked context (PSP). */
-    thread->psp = (void *)s_stack_init(entry,
-                                       (void *)((char *)stackaddr + stacksize));
+    thread->psp = context;
 
     thread->init_tick      = tick;
     thread->remaining_tick = tick;
+    return S_OK;
 }
 
 /**
  * @brief Public initialization (allocates timer and sets INIT state).
  */
 s_status s_thread_init(s_pthread thread,
-                       void *entry,
+                       s_thread_entry_t entry,
                        void *stackaddr,
                        s_uint32_t stacksize,
                        s_int8_t priority,
@@ -61,7 +68,8 @@ s_status s_thread_init(s_pthread thread,
     if (tick == 0)
         return S_INVALID;
 
-    _s_thread_init(thread, entry, stackaddr, stacksize, priority, tick);
+    if (_s_thread_init(thread, entry, stackaddr, stacksize, priority, tick) != S_OK)
+        return S_INVALID;
 
     /* Initialize per-thread timer (sleep/timeouts). */
     if (s_timer_init(&(thread->timer), timeout_function, thread, tick) != S_OK)
@@ -123,6 +131,7 @@ s_status s_thread_delete(s_pthread thread)
  */
 void s_thread_sleep(s_uint32_t tick)
 {
+    s_uint32_t level = s_irq_disable();
     s_pthread thread = s_thread_get();
 
     s_sched_remove_thread(thread);
@@ -133,6 +142,7 @@ void s_thread_sleep(s_uint32_t tick)
     s_timer_start(&(thread->timer));
 
     s_sched_switch();
+    s_irq_enable(level);
 }
 
 /**
@@ -229,12 +239,10 @@ s_status s_thread_restart(s_pthread thread)
     }
     s_irq_enable(level);
 
-    _s_thread_init(thread,
-                   thread->entry,
-                   thread->stackaddr,
-                   thread->stacksize,
-                   thread->init_priority,
-                   thread->timer.init_tick);
+    if (_s_thread_init(thread, thread->entry, thread->stackaddr,
+                       thread->stacksize, thread->init_priority,
+                       thread->timer.init_tick) != S_OK)
+        return S_INVALID;
 
     s_timer_init(&(thread->timer), timeout_function, thread, thread->timer.init_tick);
 
@@ -259,9 +267,8 @@ void s_thread_exit(void)
     t->status = START_THREAD_TERMINATED;
     s_list_insert_before(&s_thread_defunct_list, &(t->tlist));
 
-    s_irq_enable(level);
-
     s_sched_switch();
+    s_irq_enable(level);
 
     for (;;)
     {

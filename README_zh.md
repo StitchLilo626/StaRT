@@ -17,6 +17,12 @@ cmake --build --preset stm32-debug
 
 **Keil MDK**。打开 [StaRT-stm32f103c8.uvprojx](bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx)，构建 `StaRT` 目标。
 
+## 构建 STC8H8K64U 示例
+
+安装 SDCC 和 Ninja 后，执行 `cmake --preset stc8h8k64u` 和
+`cmake --build --preset stc8h8k64u`。时钟设置、烧录文件和模拟器测试见
+[STC8H8K64U 移植指南](readme/StaRT_STC8H8K64U.md)。
+
 ## 1. 已具备功能
 - 固定优先级 + 位图快速查找（0 为最高）
 - 同优先级时间片轮转 

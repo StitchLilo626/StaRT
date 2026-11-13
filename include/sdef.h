@@ -21,10 +21,24 @@ typedef signed char         s_int8_t;
 typedef unsigned char       s_uint8_t;
 typedef short               s_int16_t;
 typedef unsigned short      s_uint16_t;
+#if defined(__SDCC_mcs51)
+typedef long                s_int32_t;
+typedef unsigned long       s_uint32_t;
+#else
 typedef int                 s_int32_t;
 typedef unsigned int        s_uint32_t;
+#endif
 typedef long long           s_int64_t;
 typedef unsigned long long  s_uint64_t;
+typedef void (*s_thread_entry_t)(void);
+
+#if defined(__SDCC_mcs51)
+typedef void **s_switch_arg_t;
+#define S_SWITCH_ARG(slot) (&(slot))
+#else
+typedef s_uint32_t s_switch_arg_t;
+#define S_SWITCH_ARG(slot) ((s_switch_arg_t)&(slot))
+#endif
 
 /**
  * @brief Generic status codes used across subsystems.
@@ -67,8 +81,8 @@ typedef struct timer
  */
 typedef struct thread
 {
-    void       *psp;              /**< Saved process stack pointer (hardware context next restore point) */
-    void       *entry;            /**< Entry function */
+    void       *psp;              /**< Saved CPU context, interpreted by the port */
+    s_thread_entry_t entry;       /**< Entry function */
     void       *stackaddr;        /**< Stack base (low address) */
     s_uint32_t  stacksize;        /**< Stack size in bytes */
     s_list      tlist;            /**< Run / wait queue list node */
@@ -80,6 +94,9 @@ typedef struct thread
     s_uint32_t  init_tick;        /**< Time slice length (ticks) */
     s_uint32_t  remaining_tick;   /**< Remaining time slice */
     s_int32_t   status;           /**< Thread lifecycle status flags */
+#if START_USING_IPC && START_USING_SEMAPHORE
+    s_status    sem_wait_result;  /**< Result delivered to a blocked semaphore waiter */
+#endif
     s_timer     timer;            /**< Per-thread sleep/timeout timer */
 } s_thread, *s_pthread;
 #if START_USING_IPC
@@ -148,7 +165,11 @@ struct s_mq_message
 
 #endif
 
+#if defined(__SDCC_mcs51)
+#define s_inline static inline
+#else
 #define s_inline static inline __attribute__((always_inline))
+#endif
 
 /* Thread status flags */
 #define START_THREAD_READY       0x01
@@ -229,7 +250,7 @@ struct s_mq_message
  * @brief Obtain container struct pointer from member pointer.
  */
 #define S_CONTAINER_OF(ptr, type, member) \
-    ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
+    ((type *)((char *)(ptr) - offsetof(type, member)))
 
 /**
  * @brief Get struct pointer that embeds a list node.

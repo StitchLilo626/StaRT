@@ -55,7 +55,7 @@
 
 ## 2. 线程管理
 
-### s_status s_thread_init(s_pthread thread, void *entry, void *stackaddr, s_uint32_t stacksize, s_int8_t priority, s_uint32_t tick)
+### s_status s_thread_init(s_pthread thread, s_thread_entry_t entry, void *stackaddr, s_uint32_t stacksize, s_int8_t priority, s_uint32_t tick)
 初始化线程控制块，但不放入就绪队列。
 - 参数：
   - thread 线程对象指针（静态/全局存储）

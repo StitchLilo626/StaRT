@@ -116,3 +116,22 @@ jobs:
           qemu-system-arm --version
           python3 scripts/check_cpu_port.py --optimization O0 --output build/port-O0
           python3 scripts/check_cpu_port.py --optimization Os --output build/port-Os
+
+  stc8h-port:
+    name: STC8H8K64U firmware and MCS-51 core (uCsim)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install SDCC and uCsim
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y cmake ninja-build sdcc sdcc-libraries sdcc-ucsim
+      - name: Build and validate the board and simulator images
+        run: |
+          cmake --preset stc8h8k64u -DSTART_STC8H_SIM_TESTS=ON
+          cmake --build --preset stc8h8k64u --parallel 2
+          ctest --test-dir build/stc8h8k64u --output-on-failure

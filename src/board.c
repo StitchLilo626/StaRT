@@ -19,7 +19,10 @@
 /**
  * @brief Weak banner printer (can be overridden by user).
  */
-__weak void s_start_banner(void)
+#if !defined(__SDCC_mcs51)
+__weak
+#endif
+void s_start_banner(void)
 {
     s_printf("\r\n");
     s_printf("=================================================\r\n");
@@ -139,9 +142,12 @@ static s_status s_idle_thread_init(void)
  */
 s_status s_start_init(void)
 {
+    s_status status;
     s_sched_init();
     s_timer_list_init();
-    s_idle_thread_init();
+    status = s_idle_thread_init();
+    if (status != S_OK)
+        return status;
     s_start_banner();
     return S_OK;
 }

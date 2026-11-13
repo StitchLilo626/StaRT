@@ -3,13 +3,7 @@ set(HAL "${BSP}/Drivers/STM32F1xx_HAL_Driver")
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/stm32f103c8.ld")
 
 set(KERNEL_SOURCES
-    ${PROJECT_SOURCE_DIR}/src/board.c
-    ${PROJECT_SOURCE_DIR}/src/ipc.c
-    ${PROJECT_SOURCE_DIR}/src/list.c
-    ${PROJECT_SOURCE_DIR}/src/scheduler.c
-    ${PROJECT_SOURCE_DIR}/src/service.c
-    ${PROJECT_SOURCE_DIR}/src/thread.c
-    ${PROJECT_SOURCE_DIR}/src/timer.c
+    ${START_KERNEL_SOURCES}
     ${PROJECT_SOURCE_DIR}/libcpu/CM3/cpuport.c
     ${PROJECT_SOURCE_DIR}/libcpu/CM3/arm_gcc.S
 )

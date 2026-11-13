@@ -1,9 +1,34 @@
 cmake_minimum_required(VERSION 3.20)
-project(StaRT LANGUAGES C ASM)
+project(StaRT LANGUAGES C)
+
+set(START_KERNEL_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/board.c
+    ${PROJECT_SOURCE_DIR}/src/ipc.c
+    ${PROJECT_SOURCE_DIR}/src/list.c
+    ${PROJECT_SOURCE_DIR}/src/scheduler.c
+    ${PROJECT_SOURCE_DIR}/src/service.c
+    ${PROJECT_SOURCE_DIR}/src/thread.c
+    ${PROJECT_SOURCE_DIR}/src/timer.c
+)
+
+if(CMAKE_C_COMPILER_ID STREQUAL "SDCC" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "mcs51")
+    # SDCC 4.2 emits header dependencies separately from compilation.
+    set(CMAKE_C_COMPILE_OBJECT
+        "<CMAKE_C_COMPILER> <DEFINES> <INCLUDES> <FLAGS> -M -o <DEP_FILE> <SOURCE>"
+        "${CMAKE_C_COMPILE_OBJECT}")
+    option(START_STC8H_SIM_TESTS "Build the uCsim core tests" OFF)
+    if(START_STC8H_SIM_TESTS)
+        enable_testing()
+    endif()
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    add_subdirectory(bsp/stc/stc8h8k64u)
+    return()
+endif()
 
 if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU" OR NOT CMAKE_CROSSCOMPILING)
-    message(FATAL_ERROR "Use -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake")
+    message(FATAL_ERROR "Select a firmware preset with cmake --list-presets")
 endif()
+enable_language(ASM)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE MinSizeRel CACHE STRING "Firmware build type" FORCE)
 endif()

@@ -17,6 +17,12 @@ Find the firmware in `build/stm32-debug/`. Use `stm32-size` for a size-optimized
 
 **Keil MDK.** Open [StaRT-stm32f103c8.uvprojx](bsp/stm32/stm32f103c8/MDK-ARM/StaRT-stm32f103c8.uvprojx) and build the `StaRT` target.
 
+## Build the STC8H8K64U example
+
+Install SDCC and Ninja, then run `cmake --preset stc8h8k64u` and
+`cmake --build --preset stc8h8k64u`. See the [STC8H8K64U port guide](readme/StaRT_STC8H8K64U.md)
+for clock setup, the flash image, and simulator tests.
+
 ## 1. Features (Current)
 - Fixed priorities + Bitmap fast lookup (0 is the highest)
 - Time slice rotation (round-robin) with the same priority

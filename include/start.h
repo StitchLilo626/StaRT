@@ -25,38 +25,42 @@ extern s_pthread s_current_thread;
 extern s_uint8_t s_current_priority;
 
 /**
- * @brief Perform a normal context switch (assembly implementation).
- * @param prev Address of previous thread PSP storage location.
- * @param next Address of next thread PSP storage location.
+ * @brief Request a context switch.
+ * @param prev Address of the previous thread's saved context field.
+ * @param next Address of the next thread's saved context field.
  */
-void s_normal_switch_task(s_uint32_t prev, s_uint32_t next);
+void s_normal_switch_task(s_switch_arg_t prev, s_switch_arg_t next);
 
 /**
- * @brief First context switch to start scheduling (assembly implementation).
- * @param next Address of next thread PSP storage location.
- * @note Spelling kept for backward compatibility (frist->first).
+ * @brief First context switch to start scheduling.
+ * @param next Address of the first thread's saved context field.
  */
-void s_first_switch_task(s_uint32_t next);
+void s_first_switch_task(s_switch_arg_t next);
 
 /**
  * @brief Disable interrupts.
- * @return Previous PRIMASK state (pass to s_irq_enable()).
+ * @return Previous interrupt state (pass to s_irq_enable()).
  */
 s_uint32_t s_irq_disable(void);
 
 /**
  * @brief Restore interrupts to previous state.
- * @param disirq Saved PRIMASK returned by s_irq_disable().
+ * @param disirq Interrupt state returned by s_irq_disable().
  */
 void s_irq_enable(s_uint32_t disirq);
 
 /**
- * @brief Initialize a thread stack frame (Cortex-M PSP layout).
+ * @brief Initialize a thread's saved context.
  * @param entry Thread entry function.
- * @param stackaddr Top address of stack (end of buffer).
- * @return PSP pointer after context frame prepared.
+ * @param stackaddr Stack top on Cortex-M, XDATA buffer base on MCS-51.
+ * @param size XDATA buffer size on MCS-51.
+ * @return Saved context pointer, or NULL if the buffer is invalid.
  */
-s_uint8_t *s_stack_init(void *entry, s_uint8_t *stackaddr);
+#if defined(__SDCC_mcs51)
+s_uint8_t *s_stack_init(s_thread_entry_t entry, s_uint8_t *stackaddr, s_uint32_t size);
+#else
+s_uint8_t *s_stack_init(s_thread_entry_t entry, s_uint8_t *stackaddr);
+#endif
 
 /* Doubly linked intrusive list primitives */
 void s_list_init(s_plist l);
@@ -121,7 +125,8 @@ void s_thread_exit(void);
  * @param tick Time slice (ticks).
  * @return S_OK on success, else error code.
  */
-s_status s_thread_init(s_pthread thread,void *entry,void *stackaddr,s_uint32_t stacksize,s_int8_t priority,s_uint32_t tick);
+s_status s_thread_init(s_pthread thread, s_thread_entry_t entry, void *stackaddr,
+                       s_uint32_t stacksize, s_int8_t priority, s_uint32_t tick);
 
 /**
  * @brief Move an initialized thread into ready state.
@@ -189,7 +194,7 @@ s_status s_idle_delhook(void (*hook)(void));
  * @param value Input value.
  * @return Bit index starting at 1, or 0 if value is 0.
  */
-int __s_ffs(int value);
+int __s_ffs(s_uint32_t value);
 
 #endif
 

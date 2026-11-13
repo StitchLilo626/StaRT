@@ -44,7 +44,7 @@ typedef struct stack
  * @param stackaddr Stack top (high address end).
  * @return New PSP value after frame placement.
  */
-s_uint8_t *s_stack_init(void *entry, s_uint8_t *stackaddr)
+s_uint8_t *s_stack_init(s_thread_entry_t entry, s_uint8_t *stackaddr)
 {
     s_pstack   pstack;
     s_uint8_t *psp;
@@ -73,7 +73,7 @@ s_uint8_t *s_stack_init(void *entry, s_uint8_t *stackaddr)
 #if START_USING_CPU_FFS
 /* Architecture-specific __s_ffs provided in assembly/inline blocks below. */
 #if defined(__CC_ARM)
-__asm int __s_ffs(int value)
+__asm int __s_ffs(s_uint32_t value)
 {
     CMP     r0, #0x00
     BEQ     exit
@@ -84,7 +84,7 @@ exit
     BX      lr
 }
 #elif defined(__CLANG_ARM)
-int __s_ffs(int value)
+int __s_ffs(s_uint32_t value)
 {
     __asm volatile(
         "CMP     r0, #0x00            \n"
@@ -99,7 +99,7 @@ int __s_ffs(int value)
     return value;
 }
 #elif defined(__IAR_SYSTEMS_ICC__)
-int __s_ffs(int value)
+int __s_ffs(s_uint32_t value)
 {
     if (value == 0) return value;
     asm("RBIT %0, %1" : "=r"(value) : "r"(value));
@@ -108,7 +108,7 @@ int __s_ffs(int value)
     return value;
 }
 #elif defined(__GNUC__)
-int __s_ffs(int value)
+int __s_ffs(s_uint32_t value)
 {
     return __builtin_ffs(value);
 }
@@ -117,7 +117,7 @@ int __s_ffs(int value)
 /**
  * @brief Generic fallback implementation of __s_ffs (first set bit).
  */
-int __s_ffs(int value)
+int __s_ffs(s_uint32_t value)
 {
 #if defined(__GNUC__) || defined(__CLANG_ARM)
     return __builtin_ffs(value);

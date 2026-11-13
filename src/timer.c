@@ -90,7 +90,14 @@ void s_udelay(s_uint32_t us)
  */
 s_uint32_t s_tick_get(void)
 {
+#if defined(__SDCC_mcs51)
+    s_uint32_t level = s_irq_disable();
+    s_uint32_t tick = s_tick;
+    s_irq_enable(level);
+    return tick;
+#else
     return s_tick;
+#endif
 }
 
 /**

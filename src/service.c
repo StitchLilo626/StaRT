@@ -16,10 +16,12 @@
 /**
  * @brief Weak putc hook (user may override for UART / SWO / etc.).
  */
+#if !defined(__SDCC_mcs51)
 __weak void s_putc(char c)
 {
     (void)c;
 }
+#endif
 
 /**
  * @brief Very small vsnprintf-like formatter (supports %d %s %c).

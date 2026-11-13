@@ -29,7 +29,7 @@ s_uint32_t s_interrupt_flag;
 s_list s_thread_priority_table[START_THREAD_PRIORITY_MAX];
 /** Bitmask indicating which priorities have at least one ready thread. */
 s_uint32_t s_thread_ready_priority_group = 0;
-/** List of threads waiting final reclamation (TERMINATED ¡ú DELETED). */
+/** List of terminated threads awaiting reclamation. */
 s_list s_thread_defunct_list;
 
 /**
@@ -75,7 +75,7 @@ void s_sched_start(void)
     next_thread->status         = START_THREAD_RUNNING;
     next_thread->remaining_tick = next_thread->init_tick;
 
-    s_first_switch_task((s_uint32_t)&next_thread->psp);
+    s_first_switch_task(S_SWITCH_ARG(next_thread->psp));
 }
 
 /**
@@ -86,10 +86,14 @@ void s_sched_switch(void)
     register s_pthread  next_thread;
     register s_pthread  prev_thread;
     register s_uint32_t highest_ready_priority;
+    s_uint32_t level = s_irq_disable();
 
     highest_ready_priority = __s_ffs(s_thread_ready_priority_group) - 1;
     if (highest_ready_priority >= START_THREAD_PRIORITY_MAX)
+    {
+        s_irq_enable(level);
         return;
+    }
 
     next_thread = S_LIST_ENTRY(
         s_thread_priority_table[highest_ready_priority].next,
@@ -97,7 +101,10 @@ void s_sched_switch(void)
         tlist);
 
     if (s_current_thread == next_thread)
+    {
+        s_irq_enable(level);
         return;
+    }
 
     prev_thread      = s_current_thread;
     s_current_thread = next_thread;
@@ -108,8 +115,9 @@ void s_sched_switch(void)
     next_thread->status = START_THREAD_RUNNING;
     s_current_priority  = next_thread->current_priority;
 
-    s_normal_switch_task((s_uint32_t)&prev_thread->psp,
-                         (s_uint32_t)&next_thread->psp);
+    s_normal_switch_task(prev_thread ? S_SWITCH_ARG(prev_thread->psp) : 0,
+                         S_SWITCH_ARG(next_thread->psp));
+    s_irq_enable(level);
 }
 
 /**
@@ -181,8 +189,7 @@ void s_thread_yield(void)
         &(s_thread_priority_table[yield_thread->current_priority]),
         &(yield_thread->tlist));
 
-    s_irq_enable(level);
-
     s_sched_switch();
+    s_irq_enable(level);
 }
 
