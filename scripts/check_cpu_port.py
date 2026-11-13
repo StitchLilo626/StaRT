@@ -20,8 +20,8 @@ def main():
     elf = output / "port-smoke.elf"
     poison = output / "ram-poison.bin"
     poison.write_bytes(b"\xa5" * (20 * 1024))
-    sources = ["tests/port/smoke.c", "tests/port/registers.S", "libcpu/CM3/cpuport.c",
-               "libcpu/CM3/arm_gcc.S", "bsp/stm32/stm32f103c8/GNU/startup_stm32f103c8.S"]
+    sources = ["tests/port/smoke.c", "tests/port/registers.S", "libcpu/arm/CM3/cpuport.c",
+               "libcpu/arm/CM3/arm_gcc.S", "bsp/stm32/stm32f103c8/GNU/startup_stm32f103c8.S"]
     command = [args.compiler, "-mcpu=cortex-m3", "-mthumb", "-mfloat-abi=soft",
                "-std=c99", "-" + args.optimization, "-g", "-Wall", "-Wextra", "-Werror",
                "-fno-common", "-ffunction-sections", "-fdata-sections", "-nostartfiles",

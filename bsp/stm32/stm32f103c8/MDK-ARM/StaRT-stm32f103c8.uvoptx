@@ -613,7 +613,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\libcpu\CM3\arm.s</PathWithFileName>
+      <PathWithFileName>..\..\..\..\libcpu\arm\CM3\arm.s</PathWithFileName>
       <FilenameWithoutPath>arm.s</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -625,7 +625,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\libcpu\CM3\cpuport.c</PathWithFileName>
+      <PathWithFileName>..\..\..\..\libcpu\arm\CM3\cpuport.c</PathWithFileName>
       <FilenameWithoutPath>cpuport.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

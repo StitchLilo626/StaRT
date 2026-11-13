@@ -42,7 +42,7 @@ python3 tests/firmware/check_regressions.py build/stm32-debug/StaRT-stm32f103c8.
 
 ## GNU 移植与内存布局
 
-- `libcpu/CM3/arm_gcc.S` 与 Keil 的 `arm.s` 独立。保存/恢复 r4–r11 和 PSP，
+- `libcpu/arm/CM3/arm_gcc.S` 与 Keil 的 `arm.s` 独立。保存/恢复 r4–r11 和 PSP，
   使用 PRIMASK 临界区及最低优先级 PendSV。首次派发不返回；连续待处理请求
   保留最初的 outgoing PSP，只更新最后的目标。发布切换请求时保存并恢复原
   PRIMASK；没有软件切换请求的 PendSV 保留原 EXC_RETURN。

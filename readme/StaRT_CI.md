@@ -20,10 +20,10 @@
   CMSIS 设备头文件、CMSIS/Include 和仓库 include。内核 C 文件自身只依赖
   `start.h`、`sdef.h`、`StaRT_Config.h` 及编译器提供的标准类型/可变参数头文件，
   因此本检查无需 HAL 宏和厂商头文件。
-- `libcpu/CM3/cpuport.c` 已有 `__GNUC__` 分支，使用 `__builtin_ffs`。
+- `libcpu/arm/CM3/cpuport.c` 已有 `__GNUC__` 分支，使用 `__builtin_ffs`。
   检查同时编译 `START_USING_CPU_FFS=0/1` 两条条件路径；在 GCC 下两者均
   使用 builtin，不能据此验证 ARMCC 的内嵌汇编实现。
-- `libcpu/CM3/arm.s` 使用 ARMASM 的 `IMPORT/EXPORT/AREA/PROC/ENDP` 等指令。
+- `libcpu/arm/CM3/arm.s` 使用 ARMASM 的 `IMPORT/EXPORT/AREA/PROC/ENDP` 等指令。
   板级 `startup_stm32f103xb.s` 同样使用 ARMASM 语法，并跳转到 ARM 运行库
   `__main`。它们不能直接由 GNU assembler 编译。该基线尚无 GNU 链接脚本、
   GNU 启动及运行库配置；后续独立 GNU 构建见上方链接。
@@ -70,7 +70,7 @@ CI 使用固定发行版 `ubuntu-24.04` 的 apt 工具链，输出实际编译�
 每个配置/优化组合编译：
 
 1. `src/` 下全部 C 源码，当前 7 个文件。
-2. `libcpu/CM3/` 下全部 C 源码，当前为 `cpuport.c`。
+2. `libcpu/arm/CM3/` 下全部 C 源码，当前为 `cpuport.c`。
 3. `include/` 下每个公开头文件单独作为首个 include，并重复 include，
    防止依赖包含顺序、遗漏标准头文件或缺失包含保护。
 4. 一个仅供编译的 API 探针：检查整数/指针宽度、线程 PSP 成员偏移，

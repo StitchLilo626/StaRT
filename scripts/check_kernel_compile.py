@@ -84,7 +84,7 @@ def compile_profile(compiler, profile, optimization, output, verbose):
                                              encoding="utf-8")
 
     sources = []
-    for folder in ("src", "libcpu/CM3"):
+    for folder in ("src", "libcpu/arm/CM3"):
         found = sorted((ROOT / folder).rglob("*.c"))
         if not found:
             raise RuntimeError("No C sources in " + folder)

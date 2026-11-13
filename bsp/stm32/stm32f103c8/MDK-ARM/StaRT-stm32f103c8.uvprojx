@@ -537,12 +537,12 @@
             <File>
               <FileName>arm.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\libcpu\CM3\arm.s</FilePath>
+              <FilePath>..\..\..\..\libcpu\arm\CM3\arm.s</FilePath>
             </File>
             <File>
               <FileName>cpuport.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\libcpu\CM3\cpuport.c</FilePath>
+              <FilePath>..\..\..\..\libcpu\arm\CM3\cpuport.c</FilePath>
             </File>
           </Files>
         </Group>

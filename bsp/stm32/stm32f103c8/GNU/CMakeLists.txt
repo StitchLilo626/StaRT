@@ -4,8 +4,8 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/stm32f103c8.ld")
 
 set(KERNEL_SOURCES
     ${START_KERNEL_SOURCES}
-    ${PROJECT_SOURCE_DIR}/libcpu/CM3/cpuport.c
-    ${PROJECT_SOURCE_DIR}/libcpu/CM3/arm_gcc.S
+    ${PROJECT_SOURCE_DIR}/libcpu/arm/CM3/cpuport.c
+    ${PROJECT_SOURCE_DIR}/libcpu/arm/CM3/arm_gcc.S
 )
 # Same HAL translation units as the checked-in Keil project, without templates.
 set(HAL_MODULES gpio_ex uart hal rcc rcc_ex gpio dma cortex pwr flash flash_ex exti)

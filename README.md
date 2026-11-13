@@ -36,7 +36,7 @@ for clock setup, the flash image, and simulator tests.
 ## 2. Directory Layout
 ```
 include/        Public kernel headers (e.g. start.h, sdef.h)
-libcpu/CM3/     Cortex-M3 port (context switch asm, stack init, ffs)
+libcpu/arm/CM3/     Cortex-M3 port (context switch asm, stack init, ffs)
 src/            Core modules (scheduler, thread, timer, list, service, board, ipc draft)
 readme/         Documentation (*.md)
 bsp/            Board support packet
